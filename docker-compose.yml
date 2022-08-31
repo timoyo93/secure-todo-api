@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"
 services:
   mongodb:
     container_name: mongodb
@@ -24,7 +24,10 @@ services:
       - mongodb
   todo-ui:
     container_name: todo-ui
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        BACKEND_URL: "go-backend:8080"
     ports:
       - "3000:80"
     depends_on:
