@@ -1,17 +1,11 @@
-FROM node:16-alpine AS build
-
+FROM node:16-alpine as build
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
 RUN npm run build
 
-FROM node:16-alpine
-WORKDIR /app
-COPY --from=build /app/build build/
-COPY --from=build /app/node_modules node_modules/
-COPY package.json .
-EXPOSE 3000
-ENV NODE_ENV=production
-
-CMD [ "node", "build" ]
+FROM nginx:1.23.1-alpine
+COPY default.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/dist/todo-ui /usr/share/nginx/html
+EXPOSE 80

@@ -1,0 +1,9 @@
+<div *ngIf="todo" class="flex items-center justify-between bg-white shadow-lg p-4 w-96 mb-2">
+  <p [class.completed]="todo.completed">{{todo.name}}</p>
+  <div class="flex align-middle space-x-2">
+    <ng-container *ngIf="!todo.completed">
+      <button class="bg-green-500 text-white p-2" (click)="markCompleted()">DONE</button>
+    </ng-container>
+    <button class="bg-red-600 text-white p-2" (click)="deleteTodo()">X</button>
+  </div>
+</div>

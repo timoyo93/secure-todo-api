@@ -1,0 +1,10 @@
+<div class="flex flex-col items-center mt-4">
+  <form class="mb-2" #form="ngForm" (ngSubmit)="addNewTodo()">
+    <input class="w-96" type="text" autocomplete="off" placeholder="Enter new Todo" name="newTodo"
+           [(ngModel)]="newTodo">
+  </form>
+  <div>
+    <app-todo-item *ngFor="let todo of todos" [todo]="todo" (delete)="deleteTodo($event)"
+                   (markDone)="markTodoAsCompleted($event)"></app-todo-item>
+  </div>
+</div>
