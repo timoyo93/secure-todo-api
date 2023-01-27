@@ -8,11 +8,6 @@ import (
 	"os"
 )
 
-var Db *mongo.Database
-var UsersCollection *mongo.Collection
-var Ctx context.Context
-var TodoCollection *mongo.Collection
-
 const (
 	Username      string = "username"
 	AccessToken          = "access_token"
@@ -22,7 +17,31 @@ const (
 	TodoCompleted        = "completed"
 )
 
-func InitDbConnection() {
+type Repository struct {
+	db    *mongo.Database
+	ctx   context.Context
+	users *mongo.Collection
+	todos *mongo.Collection
+}
+
+//type TodoRepository interface {
+//	GetAllTodos(string) ([]models.Todo, error)
+//	GetTodoById(string, string) (*models.TodoDb, error)
+//	UpdateTodo(*models.Todo, string, string) (bool, error)
+//	AddTodo(models.TodoDb) (bool, error, string)
+//	DeleteTodo(string, string) (bool, error)
+//}
+//
+//type AuthRepository interface {
+//	GetUser(string) (*models.UserDb, error)
+//	GetUserByAccessToken(string) (*models.UserDb, error)
+//	AddUser(models.UserDb) error
+//	CheckForAccessToken(string) bool
+//	SetAccessTokenForUser(models.UserDb) (error, bool)
+//	RemoveAccessTokenForUser(string) (error, bool)
+//}
+
+func New() *Repository {
 	credentials := options.Credential{
 		Username: os.Getenv("DB_USERNAME"),
 		Password: os.Getenv("DB_PASSWORD"),
@@ -32,11 +51,14 @@ func InitDbConnection() {
 	client, err := mongo.Connect(context.TODO(), clientOpts)
 	if err != nil {
 		fmt.Printf("Can not connect to database with connection string: %v\n", connString)
+		panic("")
 	} else {
-		Db = client.Database("app")
-		fmt.Println("Connected to database!")
-		UsersCollection = Db.Collection("users")
-		TodoCollection = Db.Collection("todos")
-		Ctx = context.TODO()
+		conn := client.Database("app")
+		return &Repository{
+			db:    conn,
+			users: conn.Collection("users"),
+			todos: conn.Collection("todos"),
+			ctx:   context.TODO(),
+		}
 	}
 }

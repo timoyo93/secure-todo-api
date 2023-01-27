@@ -14,3 +14,11 @@ type Todo struct {
 	Name      string `json:"name"`
 	Completed bool   `json:"completed"`
 }
+
+func (dbTodo TodoDb) MapDbToDto() Todo {
+	return Todo{
+		ID:        dbTodo.ID.Hex(),
+		Name:      dbTodo.Name,
+		Completed: dbTodo.Completed,
+	}
+}

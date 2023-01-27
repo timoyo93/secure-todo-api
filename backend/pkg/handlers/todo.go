@@ -1,4 +1,4 @@
-package todohandler
+package handlers
 
 import (
 	"github.com/labstack/echo/v4"
@@ -6,6 +6,18 @@ import (
 	"github.com/timoyo93/auth-backend/pkg/models"
 	"net/http"
 )
+
+type TodoService struct {
+	userRepo db.AuthRepository
+	todoRepo db.TodoRepository
+}
+
+func NewTodoHandler(repo db.Repository) TodoService {
+	return TodoService{
+		todoRepo: &repo,
+		userRepo: &repo,
+	}
+}
 
 // AddTodo godoc
 // @Summary Add a Todo
@@ -16,10 +28,10 @@ import (
 // @Success 201 {object} models.Todo
 // @Failure 400 {string} string
 // @Router /api/v1/todo [post]
-func AddTodo(c echo.Context) error {
+func (s TodoService) AddTodo(c echo.Context) error {
 	todo := new(models.Todo)
 	cookie, _ := c.Cookie("JSESSIONID")
-	user, err := db.GetUserByAccessToken(cookie.Value)
+	user, err := s.userRepo.GetUserByAccessToken(cookie.Value)
 	if err != nil {
 		return err
 	}
@@ -31,7 +43,7 @@ func AddTodo(c echo.Context) error {
 		Completed: todo.Completed,
 		UserId:    user.ID.Hex(),
 	}
-	if ok, err, id := db.AddTodo(entry); err != nil || !ok {
+	if ok, err, id := s.todoRepo.AddTodo(entry); err != nil || !ok {
 		return err
 	} else {
 		todo.ID = id
@@ -50,18 +62,18 @@ func AddTodo(c echo.Context) error {
 // @Failure 400 {string} string
 // @Failure 404 {string} string
 // @Router /api/v1/todo/{id} [put]
-func UpdateTodo(c echo.Context) error {
+func (s TodoService) UpdateTodo(c echo.Context) error {
 	id := c.Param("id")
 	todo := new(models.Todo)
 	if err := c.Bind(&todo); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	cookie, _ := c.Cookie("JSESSIONID")
-	user, err := db.GetUserByAccessToken(cookie.Value)
+	user, err := s.userRepo.GetUserByAccessToken(cookie.Value)
 	if err != nil {
 		return err
 	}
-	ok, err := db.UpdateTodo(todo, user.ID.Hex(), id)
+	ok, err := s.todoRepo.UpdateTodo(todo, user.ID.Hex(), id)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
@@ -81,17 +93,17 @@ func UpdateTodo(c echo.Context) error {
 // @Failure 400 {string} string
 // @Failure 404 {string} string
 // @Router /api/v1/todo/{id} [delete]
-func RemoveTodo(c echo.Context) error {
+func (s TodoService) RemoveTodo(c echo.Context) error {
 	id := c.Param("id")
 	if len(id) == 0 {
 		return c.JSON(http.StatusBadRequest, "No ID for todo provided")
 	}
 	cookie, _ := c.Cookie("JSESSIONID")
-	user, err := db.GetUserByAccessToken(cookie.Value)
+	user, err := s.userRepo.GetUserByAccessToken(cookie.Value)
 	if err != nil {
 		return err
 	}
-	ok, err := db.DeleteTodo(id, user.ID.Hex())
+	ok, err := s.todoRepo.DeleteTodo(id, user.ID.Hex())
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
@@ -112,9 +124,9 @@ func RemoveTodo(c echo.Context) error {
 // @Failure 401 {string} string
 // @Failure 404 {string} string
 // @Router /api/v1/todo/{id} [get]
-func GetTodo(c echo.Context) error {
+func (s TodoService) GetTodo(c echo.Context) error {
 	cookie, _ := c.Cookie("JSESSIONID")
-	user, err := db.GetUserByAccessToken(cookie.Value)
+	user, err := s.userRepo.GetUserByAccessToken(cookie.Value)
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, "")
 	}
@@ -122,7 +134,7 @@ func GetTodo(c echo.Context) error {
 	if len(id) == 0 {
 		return c.JSON(http.StatusBadRequest, "No ID for todo provided")
 	}
-	todo, err := db.GetTodoById(user.ID.Hex(), id)
+	todo, err := s.todoRepo.GetTodoById(user.ID.Hex(), id)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, "No Todo found for given ID")
 	}
@@ -142,13 +154,13 @@ func GetTodo(c echo.Context) error {
 // @Success 200 {array} models.Todo
 // @Failure 400 {string} string
 // @Router /api/v1/todos [get]
-func GetAllTodos(c echo.Context) error {
+func (s TodoService) GetAllTodos(c echo.Context) error {
 	cookie, _ := c.Cookie("JSESSIONID")
-	user, err := db.GetUserByAccessToken(cookie.Value)
+	user, err := s.userRepo.GetUserByAccessToken(cookie.Value)
 	if err != nil {
 		return err
 	}
-	todos, err := db.GetAllTodos(user.ID.Hex())
+	todos, err := s.todoRepo.GetAllTodos(user.ID.Hex())
 	if err != nil {
 		return err
 	}
