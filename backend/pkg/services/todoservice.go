@@ -6,10 +6,10 @@ import (
 )
 
 type TodoRepository interface {
-	GetAllTodos(string) ([]models.Todo, error)
+	GetAllTodos(string) (*[]models.Todo, error)
 	GetTodoById(string, string) (*models.TodoDb, error)
-	UpdateTodo(*models.Todo, string, string) (bool, error)
-	AddTodo(models.TodoDb) (bool, error, string)
+	UpdateTodo(*models.Todo, string) (bool, error)
+	AddTodo(*models.TodoDb) (bool, error, string)
 	DeleteTodo(string, string) (bool, error)
 }
 
@@ -17,11 +17,11 @@ type TodoService struct {
 	repo TodoRepository
 }
 
-func RegisterTodo(repo db.Repository) TodoService {
-	return TodoService{repo: &repo}
+func InitTodo(repo *db.Repository) TodoService {
+	return TodoService{repo: repo}
 }
 
-func (s TodoService) GetTodos(userId string) ([]models.Todo, error) {
+func (s TodoService) GetTodos(userId string) (*[]models.Todo, error) {
 	todos, err := s.repo.GetAllTodos(userId)
 	if err != nil {
 		return nil, err
@@ -29,10 +29,25 @@ func (s TodoService) GetTodos(userId string) ([]models.Todo, error) {
 	return todos, nil
 }
 
-func (s TodoService) GetTodoById(userId, todoId string) (models.Todo, error) {
+func (s TodoService) GetTodoById(userId, todoId string) (*models.Todo, error) {
 	dbTodo, err := s.repo.GetTodoById(userId, todoId)
 	if err != nil {
-		return models.Todo{}, err
+		return nil, err
 	}
+	return dbTodo.Map(), nil
+}
 
+func (s TodoService) UpdateTodo(todo *models.Todo, userId string) (bool, error) {
+	ok, err := s.repo.UpdateTodo(todo, userId)
+	return ok, err
+}
+
+func (s TodoService) CreateTodo(todo *models.Todo, userId string) (bool, error, string) {
+	ok, err, insertedId := s.repo.AddTodo(todo.Map(userId))
+	return ok, err, insertedId
+}
+
+func (s TodoService) DeleteTodo(todoId, userId string) (bool, error) {
+	ok, err := s.repo.DeleteTodo(todoId, userId)
+	return ok, err
 }

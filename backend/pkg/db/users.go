@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	"github.com/timoyo93/auth-backend/pkg/models"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -24,7 +25,7 @@ func (r *Repository) GetUserByAccessToken(token string) (*models.UserDb, error) 
 	return user, nil
 }
 
-func (r *Repository) AddUser(user models.UserDb) error {
+func (r *Repository) AddUser(user *models.UserDb) error {
 	if _, err := r.users.InsertOne(r.ctx, user); err != nil {
 		return err
 	}
@@ -41,28 +42,28 @@ func (r *Repository) CheckForAccessToken(token string) bool {
 	return true
 }
 
-func (r *Repository) SetAccessTokenForUser(user models.UserDb) (error, bool) {
-	filter := bson.M{Username: user.Username}
-	update := bson.M{"$set": bson.M{AccessToken: user.Token}}
+func (r *Repository) SetAccessTokenForUser(username, token string) error {
+	filter := bson.M{Username: username}
+	update := bson.M{"$set": bson.M{AccessToken: token}}
 	result, err := r.users.UpdateOne(r.ctx, filter, update)
 	if err != nil {
-		return err, false
+		return err
 	}
 	if result.ModifiedCount == 0 {
-		return nil, false
+		return errors.New("no token was set for given user")
 	}
-	return nil, true
+	return nil
 }
 
-func (r *Repository) RemoveAccessTokenForUser(token string) (error, bool) {
+func (r *Repository) RemoveAccessTokenForUser(token string) (bool, error) {
 	filter := bson.M{AccessToken: token}
 	update := bson.M{"$set": bson.M{AccessToken: ""}}
 	result, err := r.users.UpdateOne(r.ctx, filter, update)
 	if err != nil {
-		return err, false
+		return false, err
 	}
 	if result.ModifiedCount == 0 {
-		return nil, false
+		return false, err
 	}
-	return nil, true
+	return true, nil
 }

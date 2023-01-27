@@ -13,3 +13,10 @@ type UserDb struct {
 	Username string              `bson:"username"`
 	Hash     string              `bson:"hash"`
 }
+
+func NewDbUser(username, hash string) *UserDb {
+	return &UserDb{
+		Username: username,
+		Hash:     hash,
+	}
+}

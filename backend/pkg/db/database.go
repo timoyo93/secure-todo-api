@@ -24,23 +24,6 @@ type Repository struct {
 	todos *mongo.Collection
 }
 
-//type TodoRepository interface {
-//	GetAllTodos(string) ([]models.Todo, error)
-//	GetTodoById(string, string) (*models.TodoDb, error)
-//	UpdateTodo(*models.Todo, string, string) (bool, error)
-//	AddTodo(models.TodoDb) (bool, error, string)
-//	DeleteTodo(string, string) (bool, error)
-//}
-//
-//type AuthRepository interface {
-//	GetUser(string) (*models.UserDb, error)
-//	GetUserByAccessToken(string) (*models.UserDb, error)
-//	AddUser(models.UserDb) error
-//	CheckForAccessToken(string) bool
-//	SetAccessTokenForUser(models.UserDb) (error, bool)
-//	RemoveAccessTokenForUser(string) (error, bool)
-//}
-
 func New() *Repository {
 	credentials := options.Credential{
 		Username: os.Getenv("DB_USERNAME"),

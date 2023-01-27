@@ -6,7 +6,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func (r *Repository) GetAllTodos(userId string) ([]models.Todo, error) {
+func (r *Repository) GetAllTodos(userId string) (*[]models.Todo, error) {
 	filter := bson.M{UserId: userId}
 	var todos []models.Todo
 	c, err := r.todos.Find(r.ctx, filter)
@@ -26,7 +26,7 @@ func (r *Repository) GetAllTodos(userId string) ([]models.Todo, error) {
 		todos = append(todos, t)
 	}
 
-	return todos, nil
+	return &todos, nil
 }
 
 func (r *Repository) GetTodoById(userId, todoId string) (*models.TodoDb, error) {
@@ -42,13 +42,13 @@ func (r *Repository) GetTodoById(userId, todoId string) (*models.TodoDb, error) 
 	return todo, nil
 }
 
-func (r *Repository) UpdateTodo(todo *models.Todo, userId, todoId string) (bool, error) {
-	objectId, err := primitive.ObjectIDFromHex(todoId)
+func (r *Repository) UpdateTodo(todo *models.Todo, userId string) (bool, error) {
+	objectId, err := primitive.ObjectIDFromHex(todo.ID)
 	if err != nil {
 		return false, err
 	}
 	filter := bson.M{TodoId: objectId, UserId: userId}
-	update := bson.M{"$set": bson.M{TodoName: todo.Name, TodoCompleted: todo.Completed}}
+	update := bson.M{"$set": bson.M{TodoName: &todo.Name, TodoCompleted: &todo.Completed}}
 	result, err := r.todos.UpdateOne(r.ctx, filter, update)
 	if err != nil {
 		return false, err
@@ -59,8 +59,8 @@ func (r *Repository) UpdateTodo(todo *models.Todo, userId, todoId string) (bool,
 	return true, nil
 }
 
-func (r *Repository) AddTodo(todo models.TodoDb) (bool, error, string) {
-	result, err := r.todos.InsertOne(r.ctx, todo)
+func (r *Repository) AddTodo(todo *models.TodoDb) (bool, error, string) {
+	result, err := r.todos.InsertOne(r.ctx, &todo)
 	if err != nil {
 		return false, err, ""
 	}
