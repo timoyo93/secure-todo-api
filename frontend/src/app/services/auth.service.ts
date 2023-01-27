@@ -1,13 +1,13 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { Injectable } from "@angular/core";
+import { HttpClient, HttpResponse } from "@angular/common/http";
+import { BehaviorSubject, Observable } from "rxjs";
+import { environment } from "../../environments/environment";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class AuthService {
-  private backendUrl = environment.backendUrl + '/auth';
+  private backendUrl = environment.backendUrl + "/auth";
 
   isAuthenticated: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
     false
@@ -19,9 +19,9 @@ export class AuthService {
     username: string;
     password: string;
   }): Observable<HttpResponse<string>> {
-    return this.http.post<string>(this.backendUrl + '/login', request, {
+    return this.http.post<string>(this.backendUrl + "/login", request, {
       withCredentials: true,
-      observe: 'response',
+      observe: "response",
     });
   }
 
@@ -29,19 +29,19 @@ export class AuthService {
     username: string;
     password: string;
   }): Observable<HttpResponse<string>> {
-    return this.http.post<string>(this.backendUrl + '/register', request, {
+    return this.http.post<string>(this.backendUrl + "/register", request, {
       withCredentials: true,
-      observe: 'response',
+      observe: "response",
     });
   }
 
   logoutUser(): Observable<HttpResponse<string>> {
     return this.http.post<string>(
-      this.backendUrl + '/logout',
+      this.backendUrl + "/logout",
       {},
       {
         withCredentials: true,
-        observe: 'response',
+        observe: "response",
       }
     );
   }
@@ -49,7 +49,7 @@ export class AuthService {
   checkAuth(): Observable<HttpResponse<string>> {
     return this.http.get<string>(this.backendUrl, {
       withCredentials: true,
-      observe: 'response',
+      observe: "response",
     });
   }
 }
