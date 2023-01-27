@@ -34,7 +34,7 @@ export class TodoService {
   }
 
   updateTodo(todo: Todo): Observable<HttpResponse<Todo>> {
-    return this.http.put<Todo>(this.backendUrl + "/todo/", todo, {
+    return this.http.put<Todo>(this.backendUrl + "/todo", todo, {
       withCredentials: true,
       observe: "response",
     });
