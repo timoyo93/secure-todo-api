@@ -1,24 +1,23 @@
-package utils
+package auth
 
 import (
 	"crypto/rand"
-	"fmt"
+	"encoding/hex"
 	"golang.org/x/crypto/bcrypt"
-	"strings"
 )
 
 // HashPassword hashes a password and returns the hash
-func HashPassword(password string) (string, error) {
+func HashPassword(password string) ([]byte, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return string(bytes), nil
+	return bytes, nil
 }
 
 // CheckPasswordHash compares a given hash with the given password
-func CheckPasswordHash(password, hash string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+func CheckPasswordHash(password string, hash []byte) bool {
+	err := bcrypt.CompareHashAndPassword(hash, []byte(password))
 	return err == nil
 }
 
@@ -26,5 +25,5 @@ func CheckPasswordHash(password, hash string) bool {
 func TokenGenerator() string {
 	b := make([]byte, 16)
 	_, _ = rand.Read(b)
-	return strings.ToUpper(fmt.Sprintf("%x", b))
+	return hex.EncodeToString(b)
 }

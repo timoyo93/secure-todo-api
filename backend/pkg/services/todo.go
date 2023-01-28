@@ -6,11 +6,11 @@ import (
 )
 
 type TodoRepository interface {
-	GetAllTodos(string) (*[]models.Todo, error)
-	GetTodoById(string, string) (*models.TodoDb, error)
-	UpdateTodo(*models.Todo, string) (bool, error)
-	AddTodo(*models.TodoDb) (bool, error, string)
-	DeleteTodo(string, string) (bool, error)
+	GetAllTodos(userID string) (*[]models.Todo, error)
+	GetTodoById(userID, todoID string) (*models.TodoDB, error)
+	UpdateTodo(todo *models.Todo, userID string) (bool, error)
+	AddTodo(todo *models.TodoDB) (bool, error, string)
+	DeleteTodo(todoID, userID string) (bool, error)
 }
 
 type TodoService struct {
