@@ -2,8 +2,8 @@ package api
 
 import (
 	"github.com/labstack/echo/v4"
+	"github.com/timoyo93/auth-backend/pkg/auth"
 	"github.com/timoyo93/auth-backend/pkg/models"
-	"github.com/timoyo93/auth-backend/pkg/utils"
 	"net/http"
 	"strings"
 )
@@ -17,15 +17,15 @@ import (
 // @Success 200 {string} string "user created"
 // @Router /auth/register [post]
 func (a API) RegisterUser(c echo.Context) error {
-	var auth *models.AuthRequest
-	if err := c.Bind(&auth); err != nil {
+	var request *models.AuthRequest
+	if err := c.Bind(&request); err != nil {
 		return err
 	}
-	user, _ := a.authService.GetUser(auth.Username)
+	user, _ := a.authService.GetUser(request.Username)
 	if user != nil {
 		return c.JSON(http.StatusBadRequest, "User already existing")
 	}
-	if err := a.authService.CreateUser(auth); err != nil {
+	if err := a.authService.CreateUser(request); err != nil {
 		return err
 	}
 	return c.JSON(http.StatusCreated, "User was created successfully")
@@ -42,11 +42,11 @@ func (a API) RegisterUser(c echo.Context) error {
 // @Failure 400 {string} string
 // @Router /auth/login [post]
 func (a API) LoginUser(c echo.Context) error {
-	var auth *models.AuthRequest
-	if err := c.Bind(&auth); err != nil {
+	var request *models.AuthRequest
+	if err := c.Bind(&request); err != nil {
 		return err
 	}
-	user, err := a.authService.GetUser(auth.Username)
+	user, err := a.authService.GetUser(request.Username)
 	if err != nil {
 		if strings.Contains(err.Error(), "no documents in result") {
 			return c.JSON(http.StatusNotFound, "No user found")
@@ -56,10 +56,10 @@ func (a API) LoginUser(c echo.Context) error {
 	if user == nil {
 		return c.JSON(http.StatusNotFound, "No user found")
 	}
-	if ok := utils.CheckPasswordHash(auth.Password, user.Hash); !ok {
+	if ok := auth.CheckPasswordHash(request.Password, user.Hash); !ok {
 		return c.JSON(http.StatusUnauthorized, "Username or Password not matching")
 	}
-	token, err := a.authService.SetAccessToken(auth.Username)
+	token, err := a.authService.SetAccessToken(request.Username)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
@@ -89,8 +89,7 @@ func (a API) LogoutUser(c echo.Context) error {
 	if cookie == nil {
 		return c.JSON(http.StatusBadRequest, "No cookie found")
 	}
-	ok, err := a.authService.RemoveAccessToken(cookie.Value)
-	if !ok {
+	if err := a.authService.RemoveAccessToken(cookie.Value); err != nil {
 		return c.JSON(http.StatusBadRequest, "Could not remove token")
 	}
 	cookie.Value = ""

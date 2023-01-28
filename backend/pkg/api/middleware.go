@@ -16,7 +16,7 @@ func (a API) CheckCookie(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 			return err
 		}
-		if isTokenPresent := a.authService.CheckAccessToken(cookie.Value); !isTokenPresent {
+		if err := a.authService.CheckAccessToken(cookie.Value); err != nil {
 			return c.JSON(http.StatusUnauthorized, "Please register/login first")
 		}
 		return next(c)

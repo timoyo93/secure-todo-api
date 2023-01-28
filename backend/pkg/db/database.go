@@ -11,8 +11,8 @@ import (
 const (
 	Username      string = "username"
 	AccessToken          = "access_token"
-	UserId               = "user_id"
-	TodoId               = "_id"
+	UserID               = "user_id"
+	TodoID               = "_id"
 	TodoName             = "name"
 	TodoCompleted        = "completed"
 )
@@ -31,7 +31,7 @@ func New() *Repository {
 	}
 	connString := os.Getenv("DB_CONN_STRING")
 	clientOpts := options.Client().ApplyURI(connString).SetAuth(credentials)
-	client, err := mongo.Connect(context.TODO(), clientOpts)
+	client, err := mongo.Connect(context.Background(), clientOpts)
 	if err != nil {
 		fmt.Printf("Can not connect to database with connection string: %v\n", connString)
 		panic("")
@@ -41,7 +41,7 @@ func New() *Repository {
 			db:    conn,
 			users: conn.Collection("users"),
 			todos: conn.Collection("todos"),
-			ctx:   context.TODO(),
+			ctx:   context.Background(),
 		}
 	}
 }

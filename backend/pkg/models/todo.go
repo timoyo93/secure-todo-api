@@ -2,11 +2,11 @@ package models
 
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
-type TodoDb struct {
+type TodoDB struct {
 	ID        *primitive.ObjectID `bson:"_id,omitempty"`
 	Name      string              `bson:"name"`
 	Completed bool                `bson:"completed"`
-	UserId    string              `bson:"user_id"`
+	UserID    string              `bson:"user_id"`
 }
 
 type Todo struct {

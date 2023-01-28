@@ -1,6 +1,6 @@
 package models
 
-func (dt TodoDb) Map() *Todo {
+func (dt *TodoDB) Map() *Todo {
 	return &Todo{
 		ID:        dt.ID.Hex(),
 		Name:      dt.Name,
@@ -8,9 +8,9 @@ func (dt TodoDb) Map() *Todo {
 	}
 }
 
-func (t *Todo) Map(userId string) *TodoDb {
-	return &TodoDb{
-		UserId:    userId,
+func (t *Todo) Map(userID string) *TodoDB {
+	return &TodoDB{
+		UserID:    userID,
 		Completed: t.Completed,
 		Name:      t.Name,
 	}

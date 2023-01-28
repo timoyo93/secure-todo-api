@@ -7,15 +7,15 @@ type AuthRequest struct {
 	Password string
 }
 
-type UserDb struct {
+type UserDB struct {
 	ID       *primitive.ObjectID `bson:"_id,omitempty"`
 	Token    string              `bson:"access_token"`
 	Username string              `bson:"username"`
-	Hash     string              `bson:"hash"`
+	Hash     []byte              `bson:"hash"`
 }
 
-func NewDbUser(username, hash string) *UserDb {
-	return &UserDb{
+func NewDBUser(username string, hash []byte) *UserDB {
+	return &UserDB{
 		Username: username,
 		Hash:     hash,
 	}
