@@ -1,7 +1,6 @@
 .DS_Store
 .idea/
 .svelte-kit/
-.env.local
 node_modules/
 docs/
 
