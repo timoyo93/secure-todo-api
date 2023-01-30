@@ -54,7 +54,7 @@ function createRequest(method: Method, request: any): RequestInit {
 	} as RequestInit;
 }
 
-enum Endpoints {
+export enum Endpoints {
 	AUTH = 'auth',
 	AUTH_LOGIN = 'auth/login',
 	AUTH_LOGOUT = 'auth/logout',

@@ -1,7 +1,53 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { loginUser, registerUser } from '$lib/api';
 	import { fade } from 'svelte/transition';
+	import type { AuthRequest } from '../../models';
+	import { isLoggedIn } from '../../stores/auth.store';
 	let loading = false;
-	let userExisting = false;
+	let password = '';
+	let checkPassword = '';
+	let arePasswordEqual = false;
+	let showError = false;
+	let errorMessage = '';
+
+	function checkIfPasswordIsEqual() {
+		if (password.length > 0) {
+			const isEqual = password === checkPassword;
+			arePasswordEqual = isEqual;
+		} else {
+			return;
+		}
+	}
+
+	async function register(e: SubmitEvent) {
+		loading = true;
+		showError = false;
+		const formData = new FormData(e.target as HTMLFormElement);
+		const request: AuthRequest = {
+			username: String(formData.get('username')),
+			password: checkPassword
+		};
+		const registerResponse = await registerUser(request);
+		if (!registerResponse.ok) {
+			const error = await registerResponse.json();
+			showError = true;
+			loading = false;
+			errorMessage = `${error}, try again`;
+			return;
+		}
+		const authResponse = await loginUser(request);
+		if (authResponse.ok) {
+			$isLoggedIn = true;
+			loading = false;
+			goto('/');
+			return;
+		} else {
+			showError = true;
+			loading = false;
+			errorMessage = 'Error during login, try<a href="/login">again</a> ';
+		}
+	}
 </script>
 
 <svelte:head>
@@ -15,7 +61,7 @@
 				<h2>Register</h2>
 				<h3>Already registered? <a href="/login">Log in</a></h3>
 			</hgroup>
-			<form on:submit|preventDefault>
+			<form on:input={checkIfPasswordIsEqual} on:submit|preventDefault={register}>
 				<input
 					type="text"
 					id="username"
@@ -25,6 +71,7 @@
 					required
 				/>
 				<input
+					bind:value={password}
 					type="password"
 					id="password"
 					name="password"
@@ -33,6 +80,7 @@
 					required
 				/>
 				<input
+					bind:value={checkPassword}
 					type="password"
 					id="confirm-password"
 					name="confirm-password"
@@ -41,12 +89,12 @@
 					required
 				/>
 				{#if !loading}
-					<button type="submit">Register</button>
+					<button disabled={!arePasswordEqual} type="submit">Register</button>
 				{:else}
 					<button aria-busy="true" />
 				{/if}
-				{#if userExisting}
-					<p class="error">User with this Username already exists, try another name</p>
+				{#if showError}
+					<p class="error">{@html errorMessage}</p>
 				{/if}
 			</form>
 		</article>

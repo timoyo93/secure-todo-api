@@ -6,6 +6,8 @@
 	import { fade } from 'svelte/transition';
 
 	let loading = false;
+	let showError = false;
+	let errorMessage = '';
 
 	async function login(e: SubmitEvent) {
 		loading = true;
@@ -20,8 +22,17 @@
 			$isLoggedIn = true;
 			goto('/');
 			return;
+		} else {
+			const err = await response.json();
+			showError = true;
+			loading = false;
+			if (err.includes('No user found')) {
+				errorMessage = 'No user found. Already <a href="/register">registered</a>?';
+				return;
+			}
+			errorMessage = err;
+			return;
 		}
-		loading = false;
 	}
 </script>
 
@@ -58,6 +69,9 @@
 				{:else}
 					<button aria-busy="true" />
 				{/if}
+				{#if showError}
+					<p class="error">{@html errorMessage}</p>
+				{/if}
 			</form>
 		</article>
 	</div>
@@ -69,5 +83,9 @@
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
+	}
+	.error {
+		text-align: center;
+		color: red;
 	}
 </style>
