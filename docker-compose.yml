@@ -27,9 +27,11 @@ services:
     build:
       context: ./frontend
       args:
-        BACKEND_URL: "go-backend:8080"
+        GO_API_URL: "go-backend:8080"
     ports:
-      - "3000:80"
+      - "3000:3000"
+    environment:
+      - VITE_BACKEND_URL=http://go-backend:8080
     depends_on:
       - go-backend
 volumes:

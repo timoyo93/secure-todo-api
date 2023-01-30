@@ -64,9 +64,11 @@ func (a API) LoginUser(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	cookie := &http.Cookie{
-		Name:  CookieName,
-		Value: token,
-		Path:  CookiePath,
+		Name:     CookieName,
+		Value:    token,
+		Path:     CookiePath,
+		SameSite: http.SameSiteNoneMode,
+		Secure:   true,
 	}
 	c.SetCookie(cookie)
 	return c.JSON(http.StatusOK, "Successfully logged in")
@@ -92,8 +94,14 @@ func (a API) LogoutUser(c echo.Context) error {
 	if err := a.authService.RemoveAccessToken(cookie.Value); err != nil {
 		return c.JSON(http.StatusBadRequest, "Could not remove token")
 	}
-	cookie.Value = ""
-	cookie.MaxAge = -1
+	cookie = &http.Cookie{
+		Name:     CookieName,
+		Value:    "",
+		MaxAge:   -1,
+		Path:     CookiePath,
+		SameSite: http.SameSiteNoneMode,
+		Secure:   true,
+	}
 	c.SetCookie(cookie)
 	return c.JSON(http.StatusOK, "Successfully logged out")
 }
