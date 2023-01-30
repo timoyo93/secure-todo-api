@@ -9,7 +9,6 @@ export const load = (async ({ fetch }) => {
 		credentials: 'include'
 	});
 	if (auth.status === 401) {
-		console.log(auth);
 		isLoggedIn.set(false);
 		throw redirect(301, '/login');
 	}

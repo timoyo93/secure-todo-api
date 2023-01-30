@@ -13,7 +13,6 @@
 
 	async function authGuard() {
 		const res = await checkAuth();
-		console.log(res);
 		if (res.ok) {
 			$isLoggedIn = true;
 			return;
