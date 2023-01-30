@@ -1,59 +1,50 @@
 import type { AuthRequest, Todo } from '../models';
-import axios from 'axios';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-const client = axios.create({
-	baseURL: import.meta.env.VITE_BACKEND_URL,
-	headers: {
-		'Content-Type': 'application/json'
-	},
-	withCredentials: true
-});
+export async function checkAuth() {
+	return await apiCall(`${BACKEND_URL}/${Endpoints.AUTH}`, Method.GET, null);
+}
 
 export async function registerUser(request: AuthRequest) {
-	return await apiCall(`${BACKEND_URL}/${Endpoints.AUTH_REGISTER}`, Method.POST, request, true);
+	return await apiCall(`${BACKEND_URL}/${Endpoints.AUTH_REGISTER}`, Method.POST, request);
 }
 
 export async function loginUser(request: AuthRequest) {
-	// return await apiCall(`${BACKEND_URL}/${Endpoints.AUTH_LOGIN}`, Method.POST, request, true);
-	const t = await client.post('/' + Endpoints.AUTH_LOGIN, request);
-	return t;
+	return await apiCall(`${BACKEND_URL}/${Endpoints.AUTH_LOGIN}`, Method.POST, request);
 }
 
 export async function logoutUser() {
-	return await apiCall(`${BACKEND_URL}/${Endpoints.AUTH_LOGOUT}`, Method.POST, {}, true);
+	return await apiCall(`${BACKEND_URL}/${Endpoints.AUTH_LOGOUT}`, Method.POST, {});
 }
 
 export async function getTodos() {
-	console.log(BACKEND_URL);
 	return await apiCall(`${BACKEND_URL}/${Endpoints.API_TODOS}`, Method.GET, null);
 }
 
 export async function getTodo(id: string) {
-	return await apiCall(`${BACKEND_URL}/${Endpoints.API_TODOS}/${id}`, Method.GET, {});
+	return await apiCall(`${BACKEND_URL}/${Endpoints.API_TODO}/${id}`, Method.GET, {});
 }
 
 export async function addTodo(todo: Todo) {
-	return await apiCall(`${BACKEND_URL}/${Endpoints.API_TODOS}`, Method.POST, todo);
+	return await apiCall(`${BACKEND_URL}/${Endpoints.API_TODO}`, Method.POST, todo);
 }
 
 export async function updateTodo(todo: Todo) {
-	return await apiCall(`${BACKEND_URL}/${Endpoints.API_TODOS}`, Method.PUT, todo);
+	return await apiCall(`${BACKEND_URL}/${Endpoints.API_TODO}`, Method.PUT, todo);
 }
 
 export async function deleteTodo(id: string) {
-	return await apiCall(`${BACKEND_URL}/${Endpoints.API_TODOS}/${id}`, Method.DELETE, null);
+	return await apiCall(`${BACKEND_URL}/${Endpoints.API_TODO}/${id}`, Method.DELETE, null);
 }
 
-function apiCall(url: string, method: Method, request: any, isAuth = false): Promise<Response> {
-	return fetch(url, createRequest(method, request, isAuth));
+function apiCall(url: string, method: Method, request: any): Promise<Response> {
+	return fetch(url, createRequest(method, request));
 }
 
-function createRequest(method: Method, request: any, isAuth: boolean): RequestInit {
+function createRequest(method: Method, request: any): RequestInit {
 	return {
 		method: method,
-		// credentials: isAuth ? 'include' : 'same-origin',
 		credentials: 'include',
 		cache: 'no-cache',
 		body: request ? JSON.stringify(request) : null,
