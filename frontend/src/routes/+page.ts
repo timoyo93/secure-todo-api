@@ -1,15 +1,20 @@
+import { goto } from '$app/navigation';
 import { Endpoints } from '$lib/api';
 import { redirect } from '@sveltejs/kit';
+import { isLoggedIn } from '../stores/auth.store';
 import type { PageLoad } from './$types';
 
 export const load = (async ({ fetch }) => {
-	try {
-		const auth = await fetch(`${import.meta.env.VITE_BACKEND_URL}/${Endpoints.AUTH}`, {
-			credentials: 'include'
-		});
-		if (!auth.ok) {
-			throw redirect(301, '/login');
-		}
+	const auth = await fetch(`${import.meta.env.VITE_BACKEND_URL}/${Endpoints.AUTH}`, {
+		credentials: 'include'
+	});
+	if (auth.status === 401) {
+		console.log(auth);
+		isLoggedIn.set(false);
+		throw redirect(301, '/login');
+	}
+	if (auth.status === 200) {
+		isLoggedIn.set(true);
 		const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/${Endpoints.API_TODOS}`, {
 			credentials: 'include'
 		});
@@ -18,7 +23,5 @@ export const load = (async ({ fetch }) => {
 				todos: await res.json()
 			};
 		}
-	} catch {
-		throw redirect(301, '/login');
 	}
 }) satisfies PageLoad;

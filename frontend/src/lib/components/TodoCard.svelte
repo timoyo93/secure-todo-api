@@ -47,7 +47,13 @@
 				<p class="text-center">{errorMessage}</p>
 			{/if}
 			<footer class="flex-actions">
-				<button on:click={markDone} class="outline width--half">Mark Done</button>
+				<button on:click={markDone} class="outline width--half">
+					{#if todo.completed}
+						Undone
+					{:else}
+						Done
+					{/if}</button
+				>
 				<button on:click={removeTodo} class="outline contrast width--half">Delete</button>
 			</footer>
 		</article>
@@ -64,5 +70,9 @@
 	.flex-actions {
 		display: flex;
 		gap: 1rem;
+	}
+
+	article {
+		margin: 0;
 	}
 </style>

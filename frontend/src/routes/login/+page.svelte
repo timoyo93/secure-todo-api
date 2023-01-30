@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { loginUser } from '$lib/api';
+	import { checkAuth, loginUser } from '$lib/api';
 	import type { AuthRequest } from '../../models';
 	import { isLoggedIn } from '../../stores/auth.store';
 	import { fade } from 'svelte/transition';
+	import { onMount } from 'svelte';
 
 	let loading = false;
 	let showError = false;
@@ -34,48 +35,59 @@
 			return;
 		}
 	}
+	onMount(() => {
+		checkAuth().then((res) => {
+			if (res.status === 200) {
+				goto('/');
+				return;
+			}
+		});
+		if ($isLoggedIn) goto('/');
+	});
 </script>
 
 <svelte:head>
 	<title>Login</title>
 </svelte:head>
 
-<div class="page-center" in:fade={{ duration: 500, delay: 300 }}>
-	<div class="container">
-		<article>
-			<hgroup>
-				<h2>Login</h2>
-				<h3>Not registered yet? <a href="/register">Register here</a></h3>
-			</hgroup>
-			<form on:submit|preventDefault={login}>
-				<input
-					type="text"
-					id="username"
-					name="username"
-					placeholder="Username"
-					aria-label="Username"
-					required
-				/>
-				<input
-					type="password"
-					id="password"
-					name="password"
-					placeholder="Password"
-					aria-label="Password"
-					required
-				/>
-				{#if !loading}
-					<button type="submit">Login</button>
-				{:else}
-					<button aria-busy="true" />
-				{/if}
-				{#if showError}
-					<p class="error">{@html errorMessage}</p>
-				{/if}
-			</form>
-		</article>
+{#await checkAuth() then}
+	<div class="page-center" in:fade={{ duration: 500, delay: 300 }}>
+		<div class="container">
+			<article>
+				<hgroup>
+					<h2>Login</h2>
+					<h3>Not registered yet? <a href="/register">Register here</a></h3>
+				</hgroup>
+				<form on:submit|preventDefault={login}>
+					<input
+						type="text"
+						id="username"
+						name="username"
+						placeholder="Username"
+						aria-label="Username"
+						required
+					/>
+					<input
+						type="password"
+						id="password"
+						name="password"
+						placeholder="Password"
+						aria-label="Password"
+						required
+					/>
+					{#if !loading}
+						<button type="submit">Login</button>
+					{:else}
+						<button aria-busy="true" />
+					{/if}
+					{#if showError}
+						<p class="error">{@html errorMessage}</p>
+					{/if}
+				</form>
+			</article>
+		</div>
 	</div>
-</div>
+{/await}
 
 <style>
 	.page-center {
