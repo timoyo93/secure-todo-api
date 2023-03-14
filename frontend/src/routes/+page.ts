@@ -1,4 +1,3 @@
-import { goto } from '$app/navigation';
 import { Endpoints } from '$lib/api';
 import { redirect } from '@sveltejs/kit';
 import { isLoggedIn } from '../stores/auth.store';

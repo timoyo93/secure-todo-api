@@ -24,14 +24,9 @@ services:
       - mongodb
   todo-ui:
     container_name: todo-ui
-    build:
-      context: ./frontend
-      args:
-        GO_API_URL: "go-backend:8080"
+    build: ./frontend
     ports:
       - "3000:3000"
-    environment:
-      - VITE_BACKEND_URL=http://go-backend:8080
     depends_on:
       - go-backend
 volumes:
