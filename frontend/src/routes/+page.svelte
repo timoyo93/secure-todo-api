@@ -22,15 +22,6 @@
 			goto('/login');
 		}
 	}
-
-	onMount(() => {
-		if (!$isLoggedIn) {
-			goto('/login');
-			return;
-		} else {
-			return;
-		}
-	});
 </script>
 
 <svelte:head>

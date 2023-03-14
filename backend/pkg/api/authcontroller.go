@@ -69,6 +69,7 @@ func (a API) LoginUser(c echo.Context) error {
 		Path:     CookiePath,
 		SameSite: http.SameSiteNoneMode,
 		Secure:   true,
+		HttpOnly: true,
 	}
 	c.SetCookie(cookie)
 	return c.JSON(http.StatusOK, "Successfully logged in")
